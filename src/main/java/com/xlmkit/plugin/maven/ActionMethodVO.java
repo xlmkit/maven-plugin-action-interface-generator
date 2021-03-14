@@ -56,9 +56,5 @@ public class ActionMethodVO {
      * 方法其他配置
      */
     private List<String> options = new ArrayList<>();
-    /**
-     * 自定义增加的参数
-     */
-    private List<MethodParameter> customParameters = new ArrayList<>();
 
 }

@@ -56,10 +56,6 @@ public class CodeUtil {
 		return paramMap.get("0").getChildren();
 	}
 
-	public static List<ActionParameterVO> toParams(String json) {
-		return toParams(JSON.parseArray(json, ActionParameterVO.class));
-
-	}
 
 	private static void doList(int lomType, boolean valid, StringBuilder code, String parent, List<ActionParameterVO> list,
 			String rootExtends) {

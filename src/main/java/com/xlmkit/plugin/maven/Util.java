@@ -6,6 +6,8 @@ package com.xlmkit.plugin.maven;
  * @Description: 工具类
  */
 public class Util {
+    public static char A = 'a';
+    public static char Z = 'z';
     /**
      * 首字母大写
      * @param letter
@@ -14,7 +16,7 @@ public class Util {
     public static String upperFirstLatter(String letter) {
         char[] chars = letter.toCharArray();
 
-        if (chars[0] >= 'a' && chars[0] <= 'z') {
+        if (chars[0] >= A && chars[0] <= Z) {
             chars[0] = (char) (chars[0] - 32);
         }
         return new String(chars);

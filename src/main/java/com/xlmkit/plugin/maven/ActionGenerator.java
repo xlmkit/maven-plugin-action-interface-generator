@@ -7,6 +7,7 @@ import java.util.List;
 import com.alibaba.fastjson.JSONArray;
 import jodd.http.HttpRequest;
 import jodd.io.FileUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -33,9 +34,10 @@ public class ActionGenerator {
 
         config.validate();
         HttpRequest request = HttpRequest.post(config.getGroupUrl() + "?no=" + config.getNo());
+        log.info(request.toString());
         String body = new String(request.send().bodyBytes(), StandardCharsets.UTF_8);
         List<ActionVO> actionVOList = JSONArray.parseArray(body,ActionVO.class);
-        JSONArray groups = JSONArray.parseArray(body);
+//        JSONArray.parse
 
         for (ActionVO actionVo: actionVOList) {
             if (actionVo.getItems() == null || actionVo.getItems().size() == 0) {
@@ -44,7 +46,8 @@ public class ActionGenerator {
             actionVo.setJavaClassName(actionVo.getName().endsWith("Action") ? actionVo.getName() : (actionVo.getName() + "Action"));
 
             for (ActionMethodVO methodVo : actionVo.getItems()) {
-
+                methodVo.setParams(CodeUtil.toParams(methodVo.getParams()));
+                methodVo.setOutParams(CodeUtil.toParams(methodVo.getOutParams()));
                 methodVo.setJavabBodyName(Util.upperFirstLatter(methodVo.getName()) + "Body");
                 methodVo.setJavaResultName(Util.upperFirstLatter(methodVo.getName()) + "Result");
 
@@ -77,14 +80,10 @@ public class ActionGenerator {
     public String modelJavaCode(ActionVO actionVO) throws Exception {
         XStringBuilder sb = new XStringBuilder();
         sb.append("package {};", config.getPackageName());
-        sb.append("import com.xlmkit.springext.Result;");
+        sb.append("import com.xlmkit.springboot.action.Result;");
         sb.append("import lombok.Getter;");
         sb.append("import lombok.Data;");
         sb.append("import javax.servlet.http.*;");
-        for (Class<?> clazz : config.getSessionClassMap().values()) {
-            sb.append("import {};", clazz.getName());
-        }
-        sb.append("import {};", config.getSessionClass().getName());
         sb.append("import java.util.List;");
         sb.append("import com.alibaba.fastjson.JSONObject;");
         sb.append("import com.alibaba.fastjson.JSONArray;");
@@ -101,10 +100,6 @@ public class ActionGenerator {
         sb.append(" */");
         sb.append("public interface {} {", actionVO.getJavaClassName());
         for (ActionMethodVO methodVO : actionVO.getItems()) {
-
-            for (ActionGeneratorFilter filter : config.getFilters()) {
-                filter.beforeMethod(actionVO,methodVO);
-            }
 
 
             sb.append("	/**");
@@ -123,11 +118,13 @@ public class ActionGenerator {
                 sb.append("	Result");
             }
             sb.append(" {} 	(", methodVO.getName());
-            for (MethodParameter p : methodVO.getCustomParameters()) {
-                sb.append("{} {},", p.getClassName(), p.getName());
+            if (!StringUtils.isEmpty(config.getCustomParameters())) {
+                sb.append("{},", config.getCustomParameters());
             }
-            if (methodVO.getOptions() != null && methodVO.getOptions().contains("aaa")) {
-                sb.append("{} session,", config.getSessionClass(actionVO.getName()).getName());
+
+            if (methodVO.getOptions() != null && methodVO.getOptions().contains(config.getSessionOptionName())) {
+
+                sb.append("{},", config.getSessionParameters());
             }
             sb.append("		{} body", methodVO.getJavabBodyName());
             sb.append("		) throws {} ;", config.getExceptionName());

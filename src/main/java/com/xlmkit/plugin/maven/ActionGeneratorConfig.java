@@ -18,12 +18,12 @@ public class ActionGeneratorConfig {
     private String no;
     private String packageName;
     private File distDirectory;
-    private Class<?> sessionClass = Object.class;
+    private String sessionParameters;
     private boolean generateReturn;
-    private Map<String, Class<?>> sessionClassMap = new HashMap<String, Class<?>>();
-    private List<ActionGeneratorFilter> filters = new ArrayList<ActionGeneratorFilter>();
     private String exceptionName = "com.xlmkit.springext.sdk.SDKException";
     private String resultHelperName = "ResultHelper";
+    private String sessionOptionName = "需授权";
+    private String customParameters = "";
 
     public void validate() {
         Assert.isTrue(!StringUtils.isEmpty(groupUrl), "[url] is empty!");
@@ -32,8 +32,5 @@ public class ActionGeneratorConfig {
         Assert.isTrue(distDirectory != null, "[distDirectory] is empty!");
     }
 
-    public Class<?> getSessionClass(String name) {
-        return sessionClassMap.getOrDefault(name, sessionClass);
-    }
 
 }
